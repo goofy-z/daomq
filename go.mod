@@ -1,4 +1,4 @@
-module daomq
+module github.com/goofy-z/daomq
 
 go 1.16
 
