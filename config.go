@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+type Loger interface {
+	Info(args ...interface{})
+	Infof(format string, args ...interface{})
+	Error(args ...interface{})
+	Errorf(format string, args ...interface{})
+	Warning(args ...interface{})
+}
+
 type DBConfig struct {
 	DSN             string        `json:"DSN"`
 	MaxOpenConns    int           `json:"MaxOpenConns"`
@@ -19,8 +27,8 @@ type MQConfig struct {
 }
 
 type BrokerConfig struct {
-	// Broker监听信号通道
-	isExitC chan os.Signal
+	// Broker优雅退出通道
+	isExitC chan struct{}
 }
 
 type Config struct {
@@ -82,8 +90,8 @@ func (c *Config) getConfigFromEnv() {
 	}
 }
 
-// 设置Broker监听信号通道，用于控制启动消费模式产生的消费者协程和broker loop协程的优雅退出
-func SetExitCOption(ch chan os.Signal) Option {
+// 设置Broker退出通道，用于控制启动消费模式产生的消费者协程和broker loop协程的优雅退出
+func SetExitCOption(ch chan struct{}) Option {
 	return func(c *Config) {
 		c.isExitC = ch
 	}

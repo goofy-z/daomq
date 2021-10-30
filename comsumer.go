@@ -1,9 +1,8 @@
 package daomq
 
 import (
-	"fmt"
-
 	"github.com/google/uuid"
+	"k8s.io/klog/v2"
 )
 
 type Consumer struct {
@@ -33,6 +32,7 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 		task, err := BrokerManager.Pop(c.Queue, c.ConsumerId, c.isBlocking)
 		// pop消息出错直接返回
 		if err != nil {
+			klog.Error(err)
 			return err
 		}
 
@@ -44,6 +44,7 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 			// 是否自动ACK
 			if autoAck {
 				if err = BrokerManager.AckMsg(task.Id, c.ConsumerId); err != nil {
+					klog.Error(err)
 					return err
 				}
 			}
@@ -57,7 +58,7 @@ func (c *Consumer) consumeOne(task *QueueMSGRecord) error {
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
-			fmt.Println(err)
+			klog.Errorf("DaoMQ Register Func do error, taskId %s, %s", task.Id, err)
 		}
 	}()
 

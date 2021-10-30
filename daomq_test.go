@@ -28,7 +28,6 @@ func TestPush(t *testing.T) {
 	} else {
 		fmt.Println(msgId)
 	}
-
 }
 
 func TestPop(t *testing.T) {
@@ -46,9 +45,4 @@ func TestPop(t *testing.T) {
 			break
 		}
 	}
-}
-
-func CancelMsg(t *testing.T) {
-	p := NewProducer()
-	p.CancelMsg("msgId")
 }
