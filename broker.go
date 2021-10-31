@@ -42,8 +42,7 @@ type LoopStatus struct {
 type Broker struct {
 	*DB
 	c             *Config
-	loger         Loger
-	isExit        bool
+	IsExit        bool
 	isExitC       chan struct{}
 	Lock          sync.RWMutex
 	cacheLock     sync.RWMutex
@@ -73,7 +72,7 @@ func (b *Broker) gracefulDown() {
 		<-b.isExitC
 		// 开始优雅退出
 		klog.Warning("DaoMQ graceful down")
-		b.isExit = true
+		b.IsExit = true
 		if len(b.ConsumerList) != 0 {
 			_, err := b.DB.Exec(ResetMessageStmt, b.c.MsgQueueTable, MSGStatusReady, MSGStatusUnACK, strings.Join(b.ConsumerList, ","))
 			if err != nil {
@@ -143,7 +142,7 @@ func (b *Broker) bindTask(task *QueueMSGRecord, consumerId string) (bool, error)
 	// 4 绑定任务
 
 	// 先检查是否已经收到退出通知
-	if b.isExit {
+	if b.IsExit {
 		klog.Warning("DaoMQ Broker status is change, so exit")
 		return false, ErrDaoMQBrokerExit
 	}
@@ -165,7 +164,7 @@ func (b *Broker) bindTask(task *QueueMSGRecord, consumerId string) (bool, error)
 
 // 任务出列，从队列中取出待分配任务
 func (b *Broker) findTask(queue string) (*QueueMSGRecord, error) {
-	if b.isExit {
+	if b.IsExit {
 		return nil, ErrDaoMQBrokerExit
 	}
 	q := QueueRecord{}
