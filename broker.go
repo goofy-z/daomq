@@ -367,7 +367,7 @@ func (b *Broker) GetOpenQueue() ([]*QueueRecord, error) {
 	}
 	for rows.Next() {
 		queue := &QueueRecord{}
-		rows.Scan(&queue.Id, &queue.Status, &queue.Concurrent)
+		rows.Scan(&queue.Queue, &queue.Status, &queue.Concurrent)
 		queues = append(queues, queue)
 	}
 	return queues, nil
