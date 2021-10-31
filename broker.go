@@ -356,3 +356,19 @@ func (b *Broker) AbandonQueue(queue string) error {
 	}
 	return nil
 }
+
+// 查询队列
+func (b *Broker) GetOpenQueue() ([]*QueueRecord, error) {
+	queues := []*QueueRecord{}
+	stmt := fmt.Sprintf(SelectQueueByStatusStmt, b.c.QueueTable, QueueStatusOpen)
+	rows, err := b.DB.Query(stmt)
+	if err != nil {
+		return queues, err
+	}
+	for rows.Next() {
+		queue := &QueueRecord{}
+		rows.Scan(&queue.Id, &queue.Status, &queue.Concurrent)
+		queues = append(queues, queue)
+	}
+	return queues, nil
+}

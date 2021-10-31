@@ -30,6 +30,14 @@ func TestPush(t *testing.T) {
 	}
 }
 
+func TestQueueStatus(t *testing.T) {
+	queues, err := BrokerManager.GetOpenQueue()
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("queues: %v %d\n", queues, len(queues))
+}
+
 func TestPop(t *testing.T) {
 	exitFlag := false
 	a := func(task *QueueMSGRecord) {
@@ -38,7 +46,11 @@ func TestPop(t *testing.T) {
 	}
 	c := NewConsumer()
 	for {
-		if err := c.BasicConsume("abc", a, false, true); err != nil && err != ErrDaoMQNoBlocking {
+		task, err := c.BasicConsume("abc", a, true, false)
+		if err != nil && err != ErrDaoMQNoBlocking {
+			t.Fatal(err)
+		}
+		if err := BrokerManager.AckMsg(task.Id, c.ConsumerId); err != nil {
 			t.Fatal(err)
 		}
 		if exitFlag {

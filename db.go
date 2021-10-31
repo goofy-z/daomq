@@ -43,9 +43,6 @@ const (
 	UpdateMessageStatusByIdStmt = `
 		UPDATE %s SET status='%s', updated_at='%s' WHERE id='%s'
 	`
-	SelectQueueByNameStmt = `
-		SELECT queue, status, concurrent from %s where queue='%s' limit 1
-	`
 	CreateQueueRecordStmt = `
 		INSERT INTO %s (created_at, updated_at, status, queue, concurrent) VALUES ('%s', '%s', '%s', '%s', %d) 
 	`
@@ -60,6 +57,12 @@ const (
 	`
 	UpdateQueueStatusByIdStmt = `
 		UPDATE %s SET status='%s', updated_at='%s' WHERE queue='%s'
+	`
+	SelectQueueByStatusStmt = `
+		SELECT queue, status, concurrent from %s where status='%s'
+	`
+	SelectQueueByNameStmt = `
+		SELECT queue, status, concurrent from %s where queue='%s' limit 1
 	`
 )
 

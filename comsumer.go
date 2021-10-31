@@ -23,7 +23,7 @@ func NewConsumer() *Consumer {
 }
 
 // 注册并启动消费者，注意这是运行在主线程中，会使其阻塞，如果需启动多个消费者则考虑放到协程中
-func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, autoAck bool) error {
+func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, autoAck bool) (*QueueMSGRecord, error) {
 	// 设置消费队列
 	c.Queue = queue
 	c.isBlocking = isBlocking
@@ -33,7 +33,7 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 		// pop消息出错直接返回
 		if err != nil {
 			klog.Error(err)
-			return err
+			return nil, err
 		}
 
 		err = c.consumeOne(task)
@@ -45,8 +45,11 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 			if autoAck {
 				if err = BrokerManager.AckMsg(task.Id, c.ConsumerId); err != nil {
 					klog.Error(err)
-					return err
+					return task, err
 				}
+			} else {
+				// 不自动ACK则直接返回
+				return task, nil
 			}
 		}
 	}
