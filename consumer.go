@@ -32,7 +32,6 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 		task, err := BrokerManager.Pop(c.Queue, c.ConsumerId, c.isBlocking)
 		// pop消息出错直接返回
 		if err != nil {
-			klog.Error(err)
 			return nil, err
 		}
 
@@ -44,7 +43,6 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 			// 是否自动ACK
 			if autoAck {
 				if err = BrokerManager.AckMsg(task.Id, c.ConsumerId); err != nil {
-					klog.Error(err)
 					return task, err
 				}
 			} else {
