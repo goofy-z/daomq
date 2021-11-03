@@ -32,7 +32,7 @@ const (
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 	`
 	ResetMessageStmt = `
-		UPDATE %s SET status='%s' WHERE status='%s' AND consumer_id IN (%s)
+		UPDATE %s SET status='%s', consumer_id=null WHERE status='%s' AND consumer_id IN (%s)
 	`
 	CreateMessageStmt = `
 		INSERT INTO %s (id, created_at, updated_at, queue, data) VALUES ('%s', '%s', '%s', '%s', '%s') 

@@ -74,7 +74,12 @@ func (b *Broker) gracefulDown() {
 		klog.Warning("DaoMQ graceful down")
 		b.IsExit = true
 		if len(b.ConsumerList) != 0 {
-			_, err := b.DB.Exec(ResetMessageStmt, b.c.MsgQueueTable, MSGStatusReady, MSGStatusUnACK, strings.Join(b.ConsumerList, ","))
+			newList := []string{}
+			for _, c := range b.ConsumerList {
+				newList = append(newList, fmt.Sprintf("'%s'", c))
+			}
+			stmt := fmt.Sprintf(ResetMessageStmt, b.c.MsgQueueTable, MSGStatusReady, MSGStatusUnACK, strings.Join(newList, ","))
+			_, err := b.DB.Exec(stmt)
 			if err != nil {
 				klog.Error(err)
 			}
