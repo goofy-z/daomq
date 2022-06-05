@@ -17,9 +17,11 @@ type ConsumerFunc func(task *QueueMSGRecord)
 
 // 初始化生产者
 func NewConsumer() *Consumer {
-	return &Consumer{
+	c := &Consumer{
 		ConsumerId: uuid.New().String(),
 	}
+	BrokerManager.RegisterConsumer(c.ConsumerId)
+	return c
 }
 
 // 注册并启动消费者，注意这是运行在主线程中，会使其阻塞，如果需启动多个消费者则考虑放到协程中
