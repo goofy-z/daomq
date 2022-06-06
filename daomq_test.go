@@ -40,9 +40,9 @@ func TestQueueStatus(t *testing.T) {
 
 func TestPop(t *testing.T) {
 	exitFlag := false
-	a := func(task *QueueMSGRecord) {
+	a := func(task TaskHandler) {
 		exitFlag = true
-		fmt.Println(task)
+		fmt.Println(task.GetTask())
 	}
 	c := NewConsumer()
 	for {

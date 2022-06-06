@@ -27,6 +27,7 @@ var (
 	ErrDaoMQNotInit           = fmt.Errorf("DaoMQ not init")
 	ErrDaoMQQueueNotExist     = fmt.Errorf("DaoMQ queue not exist")
 	ErrDaoMQNoMsgPop          = fmt.Errorf("DaoMQ queue pop msg failed")
+	ErrDaoMQMsgNotFound       = fmt.Errorf("DaoMQ msg not found")
 	ErrDaoMQNoBlocking        = fmt.Errorf("DaoMQ queue no msg and not blocking")
 	ErrDaoMQNotResetMsg       = fmt.Errorf("DaoMQ not reset the failed msg")
 	ErrDaoMQQueueAbandon      = fmt.Errorf("DaoMQ queue has been abandoned")
@@ -306,6 +307,19 @@ func (b *Broker) AckMsg(msgId string, consumerId string) error {
 		}
 	}
 	return nil
+}
+
+// 根据id获取消息
+func (b *Broker) GetMsg(msgId string) (status string, data string, err error) {
+	if msgId != "" {
+		stmt := fmt.Sprintf(SelectMessageByIdStmt, b.c.MsgQueueTable, msgId)
+		q := &QueueMSGRecord{}
+		if err := b.DB.QueryRow(stmt).Scan(&q.Status, &q.Data); err != nil {
+			return "", "", ErrDaoMQMsgNotFound
+		}
+		return q.Status, q.Data, nil
+	}
+	return
 }
 
 // ready消息

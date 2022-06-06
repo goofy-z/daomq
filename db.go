@@ -52,6 +52,9 @@ const (
 	SelectOneMessageByStatusStmt = `
 		SELECT id, data from %s where queue='%s' and status='%s' order by created_at limit %d
 	`
+	SelectMessageByIdStmt = `
+		SELECT status, data from %s WHERE id='%s'
+	`
 	BindMessageByIdStmt = `
 		UPDATE %s SET status='%s', updated_at='%s', consumer_id='%s' WHERE id='%s' and (consumer_id is null or consumer_id = "") and status='ready'
 	`
@@ -74,7 +77,7 @@ type QueueMSGRecord struct {
 	Id         string `db:"id"`
 	CreatedAt  string `db:"created_at"`
 	UpdatedAt  int    `db:"updated_at"`
-	Status     int    `db:"status"`
+	Status     string `db:"status"`
 	Queue      string `db:"queue"`
 	ConsumerId string `db:"consumer_id"`
 	Data       string `db:"data"`

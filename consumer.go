@@ -11,9 +11,15 @@ type Consumer struct {
 	Queue      string
 	F          ConsumerFunc
 	Extra      []interface{}
+	CurrentMsg *QueueMSGRecord
 }
 
-type ConsumerFunc func(task *QueueMSGRecord)
+type ConsumerFunc func(task TaskHandler)
+
+type TaskHandler interface {
+	// 状态变更通知
+	GetTask() (*QueueMSGRecord, error)
+}
 
 // 初始化生产者
 func NewConsumer() *Consumer {
@@ -36,6 +42,7 @@ func (c *Consumer) BasicConsume(queue string, f ConsumerFunc, isBlocking bool, a
 		if err != nil {
 			return nil, err
 		}
+		c.CurrentMsg = task
 
 		err = c.consumeOne(task)
 		if err != nil {
@@ -66,6 +73,17 @@ func (c *Consumer) consumeOne(task *QueueMSGRecord) error {
 	}()
 
 	// 执行消费者注册函数
-	c.F(task)
+	c.F(c)
 	return err
+}
+
+// GetTask 获取最新任务
+func (c *Consumer) GetTask() (*QueueMSGRecord, error) {
+	status, data, err := BrokerManager.GetMsg(c.CurrentMsg.Id)
+	if err != nil {
+		return nil, err
+	}
+	c.CurrentMsg.Status = status
+	c.CurrentMsg.Data = data
+	return c.CurrentMsg, nil
 }
